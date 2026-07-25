@@ -1,0 +1,39 @@
+---
+import WorkCard from '../components/WorkCard.astro';
+import type { Lang } from '../data/site';
+import { useTranslations } from '../i18n/ui';
+import { getSortedWorks, groupByYear } from '../data/works';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const groups = groupByYear(await getSortedWorks());
+---
+
+<div class="page wrap">
+  <div class="page-head rise">
+    <h1 class="page-head__title">{t('works.title')}</h1>
+    <p class="page-head__sub">{t('works.sub')}</p>
+  </div>
+
+  {
+    groups.map(([year, items]) => (
+      <section class="year-group">
+        <div class="year-group__head">
+          <h2 class="year-group__year">{year}</h2>
+          <span class="year-group__count">
+            {items.length} {t('works.count')}
+          </span>
+        </div>
+        <ul class="works-grid">
+          {items.map((work) => (
+            <WorkCard work={work} lang={lang} />
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

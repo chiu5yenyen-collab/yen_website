@@ -1,0 +1,47 @@
+---
+import type { Lang } from '../data/site';
+import { useTranslations } from '../i18n/ui';
+import { exhibitions } from '../data/exhibitions';
+import type { ExhKind } from '../data/exhibitions';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const kinds: { key: ExhKind; label: 'exhibitions.solo' | 'exhibitions.group' | 'exhibitions.award' }[] = [
+  { key: 'solo', label: 'exhibitions.solo' },
+  { key: 'group', label: 'exhibitions.group' },
+  { key: 'award', label: 'exhibitions.award' },
+];
+---
+
+<div class="page wrap wrap--narrow">
+  <div class="page-head rise">
+    <h1 class="page-head__title">{t('exhibitions.title')}</h1>
+    <p class="page-head__sub">{t('exhibitions.sub')}</p>
+  </div>
+
+  {
+    kinds.map(({ key, label }) => {
+      const items = exhibitions.filter((e) => e.kind === key).sort((a, b) => b.year - a.year);
+      if (items.length === 0) return null;
+      return (
+        <section class="exh-group">
+          <h2 class="cv-block__title">{t(label)}</h2>
+          <ul class="exh-list">
+            {items.map((e) => (
+              <li class="exh-item">
+                <span class="exh-item__year">{e.year}</span>
+                <span class="exh-item__title">{e.title[lang]}</span>
+                <span class="exh-item__venue">{e.venue[lang]}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })
+  }
+</div>

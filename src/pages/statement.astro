@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import StatementView from '../views/StatementView.astro';
+import { useTranslations } from '../i18n/ui';
+
+const lang = 'zh' as const;
+const t = useTranslations(lang);
+---
+
+<Base lang={lang} title={t('statement.title')} path="/statement">
+  <StatementView lang={lang} />
+</Base>

@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import WorkCard from '../components/WorkCard.astro';
+import { site } from '../data/site';
+import type { Lang } from '../data/site';
+import { useTranslations, localizePath } from '../i18n/ui';
+import { getSortedWorks } from '../data/works';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const works = await getSortedWorks();
+const featured = works.filter((w) => w.data.featured);
+const hero = featured[0] ?? works[0];
+const rest = (featured.length > 1 ? featured.slice(1) : works.slice(1)).slice(0, 4);
+---
+
+<div class="page">
+  <section class="wrap hero rise">
+    <figure class="hero__figure">
+      <a href={localizePath(lang, `/works/${hero.id}`)}>
+        <Image
+          class="hero__img"
+          src={hero.data.cover}
+          alt={hero.data.title[lang]}
+          widths={[720, 1200, 1800]}
+          sizes="(max-width: 1180px) 100vw, 1120px"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </a>
+      <figcaption class="hero__caption">
+        <span>{hero.data.title[lang]}</span>
+        <span>{hero.data.year}, {hero.data.materials[lang]}, {hero.data.dimensions}</span>
+      </figcaption>
+    </figure>
+
+    <div class="hero__statement rise rise-2">
+      <h1>{site.name[lang]}</h1>
+      <p>{site.description[lang]}</p>
+      <p><a class="label" href={localizePath(lang, '/works')}>{t('home.viewWorks')} →</a></p>
+    </div>
+  </section>
+
+  <section class="wrap" style="margin-top: var(--section-gap);">
+    <ul class="works-grid">
+      {rest.map((work) => <WorkCard work={work} lang={lang} />)}
+    </ul>
+  </section>
+</div>

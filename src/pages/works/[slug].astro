@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import WorkDetailView from '../../views/WorkDetailView.astro';
+import { getSortedWorks } from '../../data/works';
+
+export async function getStaticPaths() {
+  const works = await getSortedWorks();
+  const series = await getCollection('series');
+
+  return works.map((work, i) => ({
+    params: { slug: work.id },
+    props: {
+      work,
+      prev: works[i - 1],
+      next: works[i + 1],
+      seriesId: work.data.series ?? null,
+      seriesTitles: Object.fromEntries(series.map((s) => [s.id, s.data.title])),
+    },
+  }));
+}
+
+const lang = 'zh' as const;
+const { work, prev, next, seriesId, seriesTitles } = Astro.props;
+const seriesTitle = seriesId ? seriesTitles[seriesId]?.[lang] : undefined;
+---
+
+<Base
+  lang={lang}
+  title={work.data.title[lang]}
+  description={work.data.note ? work.data.note[lang] : undefined}
+  path={`/works/${work.id}`}
+>
+  <WorkDetailView work={work} prev={prev} next={next} seriesTitle={seriesTitle} lang={lang} />
+</Base>

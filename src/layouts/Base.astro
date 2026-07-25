@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+import type { Lang } from '../data/site';
+import { useTranslations, localizePath } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** 分頁標題(不含站名) */
+  title?: string;
+  description?: string;
+  /** 不含語言前綴的路徑,例如 /works */
+  path?: string;
+}
+
+const { lang, title, description, path = '/' } = Astro.props;
+const t = useTranslations(lang);
+
+const siteName = site.name[lang];
+const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${site.role[lang]}`;
+const desc = description ?? site.description[lang];
+const canonical = new URL(localizePath(lang, path), Astro.site);
+const zhHref = new URL(localizePath('zh', path), Astro.site);
+const enHref = new URL(localizePath('en', path), Astro.site);
+---
+
+<!doctype html>
+<html lang={lang === 'zh' ? 'zh-Hant' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="zh-Hant" href={zhHref} />
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="x-default" href={zhHref} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'zh' ? 'zh_TW' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@300;400&display=swap"
+    />
+
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t('skip')}</a>
+    <Header lang={lang} path={path} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

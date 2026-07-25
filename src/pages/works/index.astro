@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorksView from '../../views/WorksView.astro';
+import { useTranslations } from '../../i18n/ui';
+
+const lang = 'zh' as const;
+const t = useTranslations(lang);
+---
+
+<Base lang={lang} title={t('works.title')} path="/works">
+  <WorksView lang={lang} />
+</Base>

@@ -1,0 +1,68 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import type { Lang } from '../data/site';
+import { useTranslations, localizePath } from '../i18n/ui';
+import { getSortedWorks } from '../data/works';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const series = (await getCollection('series')).sort((a, b) => a.data.order - b.data.order);
+const works = await getSortedWorks();
+---
+
+<div class="page wrap">
+  <div class="page-head rise">
+    <h1 class="page-head__title">{t('statement.title')}</h1>
+    <p class="page-head__sub">{t('statement.sub')}</p>
+  </div>
+
+  {
+    series.map((s) => {
+      const related = works.filter((w) => w.data.series === s.id).slice(0, 3);
+      return (
+        <section class="series">
+          <div class="series__head">
+            <p class="label">{s.data.period}</p>
+            <h2 class="series__title">{s.data.title[lang]}</h2>
+            <div class="series__text">
+              {s.data.text[lang]
+                .split('\n')
+                .filter((line) => line.trim().length > 0)
+                .map((line) => (
+                  <p>{line}</p>
+                ))}
+            </div>
+          </div>
+
+          {related.length > 0 && (
+            <ul class="series__works">
+              {related.map((w) => (
+                <li>
+                  <a href={localizePath(lang, `/works/${w.id}`)}>
+                    <figure>
+                      <Image
+                        src={w.data.cover}
+                        alt={w.data.title[lang]}
+                        widths={[320, 600]}
+                        sizes="(max-width: 720px) 92vw, 300px"
+                      />
+                      <figcaption>
+                        {w.data.title[lang]} / {w.data.year}
+                      </figcaption>
+                    </figure>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      );
+    })
+  }
+</div>

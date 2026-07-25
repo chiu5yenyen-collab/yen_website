@@ -1,0 +1,48 @@
+---
+import type { Lang } from '../data/site';
+import { useTranslations } from '../i18n/ui';
+import { site } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const links = [
+  { key: t('contact.email'), value: site.email, href: `mailto:${site.email}` },
+  { key: t('contact.instagram'), value: '@your_account', href: site.instagram },
+  { key: t('contact.facebook'), value: 'Facebook', href: site.facebook },
+  { key: t('contact.youtube'), value: 'YouTube', href: site.youtube },
+].filter((l) => Boolean(l.href));
+
+const lead = {
+  zh: '作品洽詢、展覽邀請、委製案,歡迎來信。通常三個工作天內回覆。',
+  en: 'For enquiries about available work, exhibitions or commissions, please get in touch. I usually reply within three working days.',
+};
+---
+
+<div class="page wrap wrap--narrow">
+  <div class="page-head rise">
+    <h1 class="page-head__title">{t('contact.title')}</h1>
+    <p class="page-head__sub">{t('contact.sub')}</p>
+  </div>
+
+  <div class="contact rise rise-2">
+    <p class="contact__lead">{lead[lang]}</p>
+
+    <ul class="contact__links">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} target={l.href.startsWith('mailto:') ? undefined : '_blank'} rel="noopener">
+              <span class="contact__key">{l.key}</span>
+              <span class="contact__val">{l.value}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>

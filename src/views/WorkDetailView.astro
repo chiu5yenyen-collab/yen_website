@@ -1,0 +1,84 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '../data/site';
+import { useTranslations, localizePath } from '../i18n/ui';
+
+interface Props {
+  work: CollectionEntry<'works'>;
+  prev?: CollectionEntry<'works'>;
+  next?: CollectionEntry<'works'>;
+  seriesTitle?: string;
+  lang: Lang;
+}
+
+const { work, prev, next, seriesTitle, lang } = Astro.props;
+const t = useTranslations(lang);
+const d = work.data;
+const gallery = [d.cover, ...d.images];
+---
+
+<div class="page wrap">
+  <p class="page-head__sub rise">
+    <a href={localizePath(lang, '/works')}>← {t('work.back')}</a>
+  </p>
+
+  <div class="work-detail rise rise-2" style="margin-top: 2.5rem;">
+    <div class="work-detail__gallery">
+      {
+        gallery.map((img, i) => (
+          <Image
+            src={img}
+            alt={d.title[lang]}
+            widths={[720, 1200, 1600]}
+            sizes="(max-width: 1180px) 100vw, 1120px"
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        ))
+      }
+    </div>
+
+    <div class="work-detail__info">
+      <div>
+        <h1 class="work-detail__title">{d.title[lang]}</h1>
+        {d.note && <p class="work-detail__note">{d.note[lang]}</p>}
+      </div>
+
+      <dl class="work-detail__spec">
+        <dt>{t('work.year')}</dt>
+        <dd>{d.year}</dd>
+        <dt>{t('work.materials')}</dt>
+        <dd>{d.materials[lang]}</dd>
+        <dt>{t('work.dimensions')}</dt>
+        <dd>{d.dimensions}</dd>
+        {
+          seriesTitle && (
+            <>
+              <dt>{t('work.series')}</dt>
+              <dd>
+                <a href={localizePath(lang, '/statement')}>{seriesTitle}</a>
+              </dd>
+            </>
+          )
+        }
+      </dl>
+    </div>
+  </div>
+
+  <nav class="work-nav">
+    {
+      prev ? (
+        <a href={localizePath(lang, `/works/${prev.id}`)}>← {t('work.prev')}</a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      next ? (
+        <a href={localizePath(lang, `/works/${next.id}`)}>{t('work.next')} →</a>
+      ) : (
+        <span />
+      )
+    }
+  </nav>
+</div>

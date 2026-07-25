@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import portrait from '../assets/works/portrait.jpg';
+import type { Lang } from '../data/site';
+import { useTranslations } from '../i18n/ui';
+import { site } from '../data/site';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const blocks = [
+  { title: t('profile.education'), items: profile.education },
+  { title: t('profile.awards'), items: profile.awards },
+  { title: t('profile.collections'), items: profile.collections },
+];
+---
+
+<div class="page wrap">
+  <div class="page-head rise">
+    <h1 class="page-head__title">{t('profile.title')}</h1>
+    <p class="page-head__sub">{t('profile.sub')}</p>
+  </div>
+
+  <div class="profile rise rise-2">
+    <div class="profile__portrait">
+      <Image src={portrait} alt={site.name[lang]} widths={[420, 800]} sizes="(max-width: 900px) 92vw, 380px" />
+    </div>
+
+    <div>
+      <div class="profile__bio">
+        {profile.bio[lang].map((para) => <p>{para}</p>)}
+      </div>
+
+      <div style="margin-top: clamp(2.5rem, 6vw, 4rem);">
+        {
+          blocks.map((block) => (
+            <section class="cv-block">
+              <h2 class="cv-block__title">{block.title}</h2>
+              <ul class="cv-list">
+                {block.items.map((item) => (
+                  <li>
+                    <span>{item.year}</span>
+                    <span>{item.text[lang]}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>

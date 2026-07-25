@@ -1,0 +1,34 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '../data/site';
+import { localizePath } from '../i18n/ui';
+
+interface Props {
+  work: CollectionEntry<'works'>;
+  lang: Lang;
+  loading?: 'eager' | 'lazy';
+}
+
+const { work, lang, loading = 'lazy' } = Astro.props;
+const d = work.data;
+---
+
+<li>
+  <a class="work-card" href={localizePath(lang, `/works/${work.id}`)}>
+    <figure>
+      <Image
+        class="work-card__img"
+        src={d.cover}
+        alt={d.title[lang]}
+        widths={[400, 700, 1000]}
+        sizes="(max-width: 720px) 92vw, (max-width: 1180px) 45vw, 360px"
+        loading={loading}
+      />
+      <figcaption>
+        <h3 class="work-card__title">{d.title[lang]}</h3>
+        <p class="work-card__meta">{d.year}, {d.materials[lang]}<br />{d.dimensions}</p>
+      </figcaption>
+    </figure>
+  </a>
+</li>
