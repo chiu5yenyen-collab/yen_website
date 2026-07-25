@@ -42,6 +42,8 @@ export const ui = {
     'contact.facebook': 'Facebook',
     'contact.youtube': 'YouTube',
     'home.viewWorks': '瀏覽全部作品',
+    'work.zoom': '放大檢視',
+    'lightbox.close': '關閉',
     'skip': '跳至主要內容',
   },
   en: {
@@ -80,6 +82,8 @@ export const ui = {
     'contact.facebook': 'Facebook',
     'contact.youtube': 'YouTube',
     'home.viewWorks': 'View all works',
+    'work.zoom': 'View larger',
+    'lightbox.close': 'Close',
     'skip': 'Skip to content',
   },
 } as const;

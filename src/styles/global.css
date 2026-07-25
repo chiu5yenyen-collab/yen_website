@@ -1,26 +1,40 @@
 /* ==========================================================
    漆器創作者網站 — 設計系統
-   原則:留白為主,作品說話。少色、少線、少動效。
+   原則:黑漆為底,作品從黑裡浮出來。
+   華麗來自材料語彙(黑漆、金粉、研出蒔繪),不是通用網頁裝飾。
    ========================================================== */
 
 :root {
-  /* 色票 */
-  --paper: #f7f5f1;      /* 背景 紙白 */
-  --paper-deep: #efece6;  /* 次層背景 */
-  --ink: #1a1714;         /* 主文字 墨 */
-  --ink-soft: #8a837b;    /* 次要文字 淺墨 */
-  --rule: #e3ded6;        /* 分隔線 */
-  --vermilion: #9e3b29;   /* 點綴 朱(極少量使用) */
+  /* --- 材料色票 --- */
+  --urushi: #14100d;       /* 黑漆 */
+  --urushi-deep: #0c0908;  /* 研出的凹處 */
+  --togidashi: #1e1915;    /* 次層面 */
+  --gold: #c9a961;         /* 金粉 */
+  --gold-dim: #8a7440;     /* 沉下去的金 */
 
-  /* 字體 */
-  --serif: "Noto Serif TC", "Songti TC", "Source Han Serif TC", serif;
+  /* --- 語意角色(名稱沿用「墨/紙」的比喻,值為深色主題) --- */
+  --paper: var(--urushi);       /* 背景 = 漆面 */
+  --paper-deep: var(--togidashi); /* 次層背景 */
+  --ink: #e9e3d7;               /* 主文字 = 紙色 */
+  --ink-soft: #9a9184;          /* 次要文字 */
+  --rule: #2c2620;              /* 結構性分隔線 */
+
+  /* --- 作品圖的框與光暈(不裁切、不套 filter,只在圖外圈) --- */
+  --frame: 0 0 0 1px rgba(201, 169, 97, 0.2), 0 18px 44px -18px rgba(0, 0, 0, 0.9);
+  --frame-lit: 0 0 0 1px rgba(201, 169, 97, 0.52), 0 28px 62px -20px rgba(0, 0, 0, 1);
+
+  /* --- 字體 --- */
+  /* Cormorant 只含拉丁字元,中文自動 fallback 到 Noto Serif TC */
+  --serif: "Cormorant Garamond", "Noto Serif TC", "Songti TC", "Source Han Serif TC", serif;
   --sans: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  /* 節奏 */
+  /* --- 節奏 --- */
   --gutter: clamp(1.25rem, 5vw, 4rem);
   --measure: 34rem;
   --section-gap: clamp(4.5rem, 12vw, 9rem);
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* 漆需要濕度與等待才會硬化 —— 動效刻意放慢 */
+  --polish: 1.25s;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -43,6 +57,18 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* 黑漆深度:漆面不是死平的黑,上下各有一道極淡的反光 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(100% 70% at 50% 0%, rgba(201, 169, 97, 0.055), transparent 62%),
+    radial-gradient(80% 55% at 50% 100%, rgba(201, 169, 97, 0.028), transparent 60%);
+}
+
 img { max-width: 100%; height: auto; display: block; }
 
 a {
@@ -50,7 +76,7 @@ a {
   text-decoration: none;
   transition: color 0.35s var(--ease), opacity 0.35s var(--ease);
 }
-a:hover { color: var(--vermilion); }
+a:hover { color: var(--gold); }
 
 h1, h2, h3, h4 {
   font-family: var(--serif);
@@ -63,10 +89,11 @@ h1, h2, h3, h4 {
 p { margin: 0 0 1.4em; }
 p:last-child { margin-bottom: 0; }
 
-::selection { background: var(--rule); color: var(--ink); }
+/* 金底黑字 8.4:1。用 --gold-dim 當底只有 3.5:1,不到 AA */
+::selection { background: var(--gold); color: var(--urushi); }
 
 :focus-visible {
-  outline: 1px solid var(--vermilion);
+  outline: 1px solid var(--gold);
   outline-offset: 4px;
 }
 
@@ -90,7 +117,32 @@ p:last-child { margin-bottom: 0; }
 /* ---------- 標題區塊 ---------- */
 
 .page-head {
+  position: relative;
   margin-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+/* 金線 */
+.page-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1.8rem;
+  width: min(100%, 11rem);
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dim) 60%, transparent);
+}
+
+/* 展開動作只在有 JS 時才需要初始收合,否則金線要直接是完整的。
+   transition 定義在基底而非 .is-revealed 上 —— 動畫結束後 class 會換成
+   is-shown,若 transition 綁在 is-revealed 上會被中斷而瞬間跳到終點。 */
+.js .page-head::after {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.1s var(--ease) 0.3s;
+}
+
+.js .page-head:is(.is-revealed, .is-shown)::after {
+  transform: scaleX(1);
 }
 
 .page-head__title {
@@ -116,8 +168,9 @@ p:last-child { margin-bottom: 0; }
 
 .rule {
   border: 0;
-  border-top: 1px solid var(--rule);
+  height: 1px;
   margin: 0;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
 }
 
 /* ---------- 頁首 ---------- */
@@ -134,10 +187,12 @@ p:last-child { margin-bottom: 0; }
   flex-wrap: wrap;
 }
 
+/* Cormorant 的 x-height 偏小,字級要比原本的 Noto Serif 設定大一些才等重 */
 .brand {
   font-family: var(--serif);
-  font-size: 1.15rem;
-  letter-spacing: 0.16em;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
   white-space: nowrap;
 }
 
@@ -168,7 +223,7 @@ p:last-child { margin-bottom: 0; }
 
 .nav__link:hover,
 .nav__link[aria-current="page"] {
-  color: var(--vermilion);
+  color: var(--gold);
 }
 
 .lang {
@@ -217,11 +272,15 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
 }
 
-/* 原始比例,不裁切 */
+/* 原始比例,不裁切。金框與光暈都在圖外圈,不動到畫面本身 */
 .hero__img {
   width: 100%;
   height: auto;
+  box-shadow: var(--frame);
+  transition: box-shadow 0.7s var(--ease);
 }
+
+.hero__figure a:hover .hero__img { box-shadow: var(--frame-lit); }
 
 .hero__caption {
   margin-top: 1.5rem;
@@ -239,9 +298,32 @@ p:last-child { margin-bottom: 0; }
   max-width: var(--measure);
 }
 
+/* 只比原本(2.1rem 上限)略大,補足 Cormorant 偏小的 x-height,不是改成大型標題 */
 .hero__statement h1 {
-  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
-  line-height: 1.65;
+  font-size: clamp(1.9rem, 4.2vw, 2.6rem);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  font-weight: 300;
+}
+
+/* 金線:品牌名底下 */
+.hero__statement h1::after {
+  content: '';
+  display: block;
+  width: 7rem;
+  height: 1px;
+  margin-top: 1.5rem;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dim) 60%, transparent);
+}
+
+.js .hero__statement h1::after {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s var(--ease) 0.45s;
+}
+
+.js .hero__statement:is(.is-revealed, .is-shown) h1::after {
+  transform: scaleX(1);
 }
 
 .hero__statement p {
@@ -271,10 +353,18 @@ p:last-child { margin-bottom: 0; }
   height: clamp(200px, 22vw, 300px);
   width: auto;
   background: var(--paper-deep);
-  transition: opacity 0.5s var(--ease);
+  box-shadow: var(--frame);
+  transition: box-shadow 0.6s var(--ease), transform 0.6s var(--ease);
 }
 
-.work-card:hover .work-card__img { opacity: 0.82; }
+/* hover 不做放大推近 —— 那需要 overflow:hidden + scale,會裁掉照片邊緣。
+   改用輕微上浮 + 金框變亮,照片完整度不受影響 */
+.work-card:hover .work-card__img {
+  box-shadow: var(--frame-lit);
+  transform: translateY(-5px);
+}
+
+.work-card:hover .work-card__title { color: var(--gold); }
 
 /* 窄螢幕改單欄直排:固定高度在窄容器下會擠壓比例 */
 @media (max-width: 900px) {
@@ -301,12 +391,22 @@ p:last-child { margin-bottom: 0; }
 .year-group + .year-group { margin-top: var(--section-gap); }
 
 .year-group__head {
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 1.2rem;
   padding-bottom: 1.1rem;
   margin-bottom: clamp(2rem, 5vw, 3.2rem);
-  border-bottom: 1px solid var(--rule);
+}
+
+/* 金線取代原本的灰色底線 */
+.year-group__head::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--rule) 45%, transparent);
 }
 
 .year-group__year {
@@ -320,7 +420,27 @@ p:last-child { margin-bottom: 0; }
 /* ---------- 作品詳情 ---------- */
 
 .work-detail__gallery { display: grid; gap: clamp(1.5rem, 4vw, 2.5rem); }
-.work-detail__gallery img { width: 100%; }
+
+/* 放大檢視的觸發鈕:重設 button 外觀,尺寸完全交給圖片 */
+.zoom {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  font: inherit;
+  color: inherit;
+}
+
+.work-detail__gallery img {
+  width: 100%;
+  box-shadow: var(--frame);
+  transition: box-shadow 0.6s var(--ease);
+}
+
+.zoom:hover img,
+.zoom:focus-visible img { box-shadow: var(--frame-lit); }
 
 .work-detail__info {
   margin-top: clamp(2.5rem, 6vw, 4rem);
@@ -405,6 +525,13 @@ p:last-child { margin-bottom: 0; }
   display: block;
   height: clamp(150px, 16vw, 210px);
   width: auto;
+  box-shadow: var(--frame);
+  transition: box-shadow 0.6s var(--ease), transform 0.6s var(--ease);
+}
+
+.series__works a:hover img {
+  box-shadow: var(--frame-lit);
+  transform: translateY(-4px);
 }
 
 @media (max-width: 900px) {
@@ -471,18 +598,32 @@ p:last-child { margin-bottom: 0; }
 
 .profile__bio { max-width: var(--measure); }
 
-.profile__portrait img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.profile__portrait img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  box-shadow: var(--frame);
+}
 
 .cv-block + .cv-block { margin-top: 2.6rem; }
 
 .cv-block__title {
+  position: relative;
   font-size: 0.72rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--gold);
   font-family: var(--sans);
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid var(--rule);
+}
+
+.cv-block__title::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--rule) 45%, transparent);
 }
 
 .cv-list { list-style: none; margin: 1.1rem 0 0; padding: 0; font-size: 0.9rem; }
@@ -526,16 +667,52 @@ p:last-child { margin-bottom: 0; }
 
 .contact__val { font-family: var(--serif); font-size: 1rem; letter-spacing: 0.04em; }
 
-/* ---------- 動態(克制) ---------- */
+/* ==========================================================
+   研出(togidashi)
+   研出蒔繪的工序是把金粉埋進漆層裡,再一層層把表面的黑磨掉,
+   讓圖像從黑裡浮出來 —— 不是加上去,是磨出來的。
+   進場動畫用同一個邏輯:遮罩由下往上把黑磨開。
+   ========================================================== */
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
+/* 初始的隱藏狀態只在有 JS 時成立。沒有 JS 就沒有人會加 is-revealed,
+   內容必須直接可見,所以這裡一定要有 .js 前綴。 */
+.js .togidashi { opacity: 0; }
+
+/* 完成狀態:沒有遮罩。
+   動畫結束後 JS 會把 is-revealed 換成 is-shown,遮罩只在動畫期間存在 ——
+   否則遮罩漸層的邊緣會在元素頂端永久留下一絲半透明。
+   prefers-reduced-motion 與不支援 IntersectionObserver 時也直接走這條。 */
+.js .togidashi.is-shown { opacity: 1; }
+
+.js .togidashi.is-revealed {
+  animation: togidashi-polish var(--polish) var(--ease) both;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0, 0, 0, 0) 62%);
+  mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0, 0, 0, 0) 62%);
+  -webkit-mask-size: 100% 200%;
+  mask-size: 100% 200%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
-.rise { animation: rise 0.9s var(--ease) both; }
-.rise-2 { animation-delay: 0.1s; }
-.rise-3 { animation-delay: 0.2s; }
+/* 遮罩高度是元素的兩倍。從上緣滑到下緣,不透明的下半部就由下往上掃過來,
+   像研磨的那一道。mask-size 200% 搭配漸層在 50% 附近換邊,起點才會是全遮蔽。 */
+@keyframes togidashi-polish {
+  from {
+    opacity: 0;
+    -webkit-mask-position: 0 0%;
+    mask-position: 0 0%;
+  }
+  to {
+    opacity: 1;
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+}
+
+/* 延遲要和上面的 animation 簡寫同特異性(0,3,0)且在後面,
+   否則簡寫會把 animation-delay 重設為 0 */
+.js .togidashi-2.is-revealed { animation-delay: 0.16s; }
+.js .togidashi-3.is-revealed { animation-delay: 0.32s; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -545,13 +722,72 @@ p:last-child { margin-bottom: 0; }
   html { scroll-behavior: auto; }
 }
 
+/* ---------- 放大檢視 ---------- */
+
+.lightbox {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+.lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+
+.lightbox::backdrop {
+  background: rgba(8, 6, 5, 0.94);
+}
+
+.lightbox__img {
+  /* width/height 都是 auto,原始比例不會被改動 */
+  max-width: 92vw;
+  max-height: 86dvh;
+  width: auto;
+  height: auto;
+  box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.3), 0 40px 90px -30px #000;
+}
+
+.lightbox__close {
+  position: fixed;
+  top: clamp(0.8rem, 2.5vw, 1.6rem);
+  right: clamp(0.8rem, 2.5vw, 1.6rem);
+  background: none;
+  border: 0;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.6rem 0.4rem;
+}
+
+.lightbox__close:hover { color: var(--gold); }
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox[open] { animation: lightbox-in 0.35s var(--ease); }
+
+/* 開啟時鎖住背景滾動 */
+html:has(.lightbox[open]) { overflow: hidden; }
+
 /* 跳至主要內容 */
 .skip {
   position: absolute;
   left: -9999px;
   top: 0;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--gold);
+  color: var(--urushi);
   padding: 0.8rem 1.2rem;
   z-index: 10;
   font-size: 0.8rem;

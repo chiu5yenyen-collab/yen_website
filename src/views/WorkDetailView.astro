@@ -19,21 +19,23 @@ const gallery = [d.cover, ...d.images];
 ---
 
 <div class="page wrap">
-  <p class="page-head__sub rise">
+  <p class="page-head__sub togidashi">
     <a href={localizePath(lang, '/works')}>← {t('work.back')}</a>
   </p>
 
-  <div class="work-detail rise rise-2" style="margin-top: 2.5rem;">
+  <div class="work-detail togidashi togidashi-2" style="margin-top: 2.5rem;">
     <div class="work-detail__gallery">
       {
         gallery.map((img, i) => (
-          <Image
-            src={img}
-            alt={d.title[lang]}
-            widths={[720, 1200, 1600]}
-            sizes="(max-width: 1180px) 100vw, 1120px"
-            loading={i === 0 ? 'eager' : 'lazy'}
-          />
+          <button class="zoom" type="button" data-zoom aria-label={t('work.zoom')}>
+            <Image
+              src={img}
+              alt={d.title[lang]}
+              widths={[720, 1200, 1600]}
+              sizes="(max-width: 1180px) 100vw, 1120px"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+          </button>
         ))
       }
     </div>

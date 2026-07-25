@@ -52,8 +52,14 @@ const enHref = new URL(localizePath('en', path), Astro.site);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@300;400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@300;400&display=swap"
     />
+
+    {/* 研出效果的初始隱藏狀態限定在 .js 之下,沒有 JS 時內容要直接可見。
+        這段必須內嵌且盡早執行,否則會先閃一下未套用的畫面。 */}
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
 
     <ClientRouter />
   </head>
@@ -64,5 +70,84 @@ const enHref = new URL(localizePath('en', path), Astro.site);
       <slot />
     </main>
     <Footer lang={lang} />
+
+    <dialog class="lightbox" id="lightbox">
+      <button class="lightbox__close" type="button" data-lightbox-close>{t('lightbox.close')}</button>
+      <img class="lightbox__img" alt="" />
+    </dialog>
+
+    <script>
+      // 研出:滾到視窗內才把黑磨開
+      function initTogidashi() {
+        document.documentElement.classList.add('js');
+
+        const targets = document.querySelectorAll('.togidashi');
+        if (!targets.length) return;
+
+        const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (still || !('IntersectionObserver' in window)) {
+          targets.forEach((el) => el.classList.add('is-shown'));
+          return;
+        }
+
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target;
+              io.unobserve(el);
+              // 磨完就把遮罩拿掉,只留下完成狀態。
+              // animationend 會冒泡,要確認是這個元素自己的動畫才收尾。
+              const finish = (e) => {
+                if (e.target !== el) return;
+                el.removeEventListener('animationend', finish);
+                el.classList.remove('is-revealed');
+                el.classList.add('is-shown');
+              };
+              el.addEventListener('animationend', finish);
+              el.classList.add('is-revealed');
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.06 }
+        );
+
+        targets.forEach((el) => io.observe(el));
+      }
+
+      // 放大檢視。document 不會被 View Transitions 換掉,所以只掛一次委派。
+      function wireLightbox() {
+        document.addEventListener('click', (event) => {
+          const dialog = document.getElementById('lightbox');
+          if (!dialog) return;
+
+          if (event.target.closest('[data-lightbox-close]')) {
+            dialog.close();
+            return;
+          }
+
+          // 點圖片以外的區域(dialog 本身)就關閉
+          if (dialog.open && event.target === dialog) {
+            dialog.close();
+            return;
+          }
+
+          const trigger = event.target.closest('[data-zoom]');
+          if (!trigger) return;
+
+          const source = trigger.querySelector('img');
+          const target = dialog.querySelector('.lightbox__img');
+          if (!source || !target) return;
+
+          // currentSrc 是瀏覽器依 srcset 實際選用的那張
+          target.src = source.currentSrc || source.src;
+          target.alt = source.alt || '';
+          dialog.showModal();
+        });
+      }
+
+      wireLightbox();
+      // astro:page-load 首次載入與每次換頁都會觸發
+      document.addEventListener('astro:page-load', initTogidashi);
+    </script>
   </body>
 </html>

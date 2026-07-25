@@ -20,7 +20,7 @@ const rest = (featured.length > 1 ? featured.slice(1) : works.slice(1)).slice(0,
 ---
 
 <div class="page">
-  <section class="wrap hero rise">
+  <section class="wrap hero togidashi">
     <figure class="hero__figure">
       <a href={localizePath(lang, `/works/${hero.id}`)}>
         <Image
@@ -39,7 +39,7 @@ const rest = (featured.length > 1 ? featured.slice(1) : works.slice(1)).slice(0,
       </figcaption>
     </figure>
 
-    <div class="hero__statement rise rise-2">
+    <div class="hero__statement togidashi togidashi-2">
       <h1>{site.name[lang]}</h1>
       <p>{site.description[lang]}</p>
       <p><a class="label" href={localizePath(lang, '/works')}>{t('home.viewWorks')} →</a></p>
