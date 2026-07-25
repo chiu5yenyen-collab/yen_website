@@ -2,7 +2,7 @@ export type Lang = 'zh' | 'en';
 
 export const site = {
   /** 創作者姓名 */
-  name: { zh: '林 某某', en: 'Mou-Mou Lin' },
+  name: { zh: 'Yen', en: 'Yen' },
   /** 身份定位(顯示在頁首與首頁) */
   role: { zh: '漆藝創作者', en: 'Lacquer Artist' },
   email: 'hello@example.com',

@@ -217,10 +217,10 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
 }
 
+/* 原始比例,不裁切 */
 .hero__img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: auto;
 }
 
 .hero__caption {
@@ -251,26 +251,37 @@ p:last-child { margin-bottom: 0; }
 
 /* ---------- 作品格 ---------- */
 
+/* 齊高橫列:每張圖高度一致、寬度隨原始比例決定,照片一律不裁切 */
 .works-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: clamp(3rem, 7vw, 5.5rem) clamp(1.5rem, 4vw, 3.5rem);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+.works-grid > li { flex: 0 1 auto; min-width: 0; }
+
 .work-card figure { margin: 0; }
 
 .work-card__img {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  display: block;
+  height: clamp(200px, 22vw, 300px);
+  width: auto;
   background: var(--paper-deep);
   transition: opacity 0.5s var(--ease);
 }
 
 .work-card:hover .work-card__img { opacity: 0.82; }
+
+/* 窄螢幕改單欄直排:固定高度在窄容器下會擠壓比例 */
+@media (max-width: 900px) {
+  .works-grid { display: grid; grid-template-columns: 1fr; }
+  .works-grid > li { min-width: 100%; }
+  .work-card__img { width: 100%; height: auto; }
+}
 
 .work-card__title {
   margin-top: 1.15rem;
@@ -380,14 +391,27 @@ p:last-child { margin-bottom: 0; }
 
 .series__works {
   margin-top: clamp(2.2rem, 5vw, 3.5rem);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: clamp(1.5rem, 4vw, 2.5rem);
   list-style: none;
   padding: 0;
 }
 
-.series__works img { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; }
+.series__works > li { flex: 0 1 auto; min-width: 0; }
+
+.series__works img {
+  display: block;
+  height: clamp(150px, 16vw, 210px);
+  width: auto;
+}
+
+@media (max-width: 900px) {
+  .series__works { display: grid; grid-template-columns: 1fr; }
+  .series__works > li { min-width: 100%; }
+  .series__works img { width: 100%; height: auto; }
+}
 
 .series__works figcaption {
   margin-top: 0.8rem;
