@@ -15,7 +15,7 @@ const year = new Date().getFullYear();
   <div class="wrap site-footer__inner">
     <span>© {year} {site.name[lang]}</span>
     <span class="site-footer__links">
-      <a href={`mailto:${site.email}`}>{site.email}</a>
+      {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
       {site.instagram && <a href={site.instagram} target="_blank" rel="noopener">Instagram</a>}
       <a href={localizePath(lang, '/contact')}>{lang === 'zh' ? '聯絡' : 'Contact'}</a>
     </span>

@@ -2,9 +2,11 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// 上線後把 site 改成你的正式網址(Netlify 會給一組 *.netlify.app,或你自己的網域)
+// 正式網址。注意要用 production 網址,不是帶 deploy id 前綴的 permalink
+// (例如 https://xxxxx--gregarious-kelpie-4935aa.netlify.app 那種只指向單次部署)。
+// 之後接了自訂網域,改這一行即可。
 export default defineConfig({
-  site: 'https://lacquer-site.netlify.app',
+  site: 'https://gregarious-kelpie-4935aa.netlify.app',
   i18n: {
     locales: ['zh', 'en'],
     defaultLocale: 'zh',

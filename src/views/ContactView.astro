@@ -10,9 +10,13 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
+/** 由 Instagram 網址推出 @帳號,不寫死 */
+const igHandle = site.instagram ? `@${site.instagram.replace(/\/+$/, '').split('/').pop()}` : '';
+
+// site.ts 裡留空的項目不顯示
 const links = [
-  { key: t('contact.email'), value: site.email, href: `mailto:${site.email}` },
-  { key: t('contact.instagram'), value: '@your_account', href: site.instagram },
+  { key: t('contact.email'), value: site.email, href: site.email ? `mailto:${site.email}` : '' },
+  { key: t('contact.instagram'), value: igHandle, href: site.instagram },
   { key: t('contact.facebook'), value: 'Facebook', href: site.facebook },
   { key: t('contact.youtube'), value: 'YouTube', href: site.youtube },
 ].filter((l) => Boolean(l.href));

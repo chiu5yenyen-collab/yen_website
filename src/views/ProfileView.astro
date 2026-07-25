@@ -13,11 +13,12 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
+// 沒有資料的區塊不顯示標題
 const blocks = [
   { title: t('profile.education'), items: profile.education },
   { title: t('profile.awards'), items: profile.awards },
   { title: t('profile.collections'), items: profile.collections },
-];
+].filter((block) => block.items.length > 0);
 ---
 
 <div class="page wrap">

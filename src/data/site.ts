@@ -5,8 +5,9 @@ export const site = {
   name: { zh: 'Yen', en: 'Yen' },
   /** 身份定位(顯示在頁首與首頁) */
   role: { zh: '漆藝創作者', en: 'Lacquer Artist' },
-  email: 'hello@example.com',
-  instagram: 'https://www.instagram.com/your_account',
+  /** 留空則頁尾與 CONTACT 頁不顯示 email */
+  email: '',
+  instagram: '',
   facebook: '',
   youtube: '',
   /** SEO 用的網站描述 */
