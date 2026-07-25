@@ -1,27 +1,23 @@
 /* ==========================================================
    漆器創作者網站 — 設計系統
-   原則:黑漆為底,作品從黑裡浮出來。
-   華麗來自材料語彙(黑漆、金粉、研出蒔繪),不是通用網頁裝飾。
+   原則:紙白為底,留白為主,作品說話。
+   點綴只用朱 —— 朱漆是漆器的正統配色,但用量必須極少。
    ========================================================== */
 
 :root {
-  /* --- 材料色票 --- */
-  --urushi: #14100d;       /* 黑漆 */
-  --urushi-deep: #0c0908;  /* 研出的凹處 */
-  --togidashi: #1e1915;    /* 次層面 */
-  --gold: #c9a961;         /* 金粉 */
-  --gold-dim: #8a7440;     /* 沉下去的金 */
+  /* --- 色票 --- */
+  --paper: #f7f5f1;      /* 背景 紙白 */
+  --paper-deep: #efece6; /* 次層背景 */
+  --ink: #1a1714;        /* 主文字 墨 16.39:1 */
+  --ink-soft: #6b645c;   /* 次要文字 5.35:1(原本的 #8a837b 只有 3.44:1,不到 AA) */
+  --rule: #e3ded6;       /* 分隔線 */
+  --vermilion: #9e3b29;  /* 朱 6.20:1 — 全站唯一的彩色,極少量使用 */
 
-  /* --- 語意角色(名稱沿用「墨/紙」的比喻,值為深色主題) --- */
-  --paper: var(--urushi);       /* 背景 = 漆面 */
-  --paper-deep: var(--togidashi); /* 次層背景 */
-  --ink: #e9e3d7;               /* 主文字 = 紙色 */
-  --ink-soft: #9a9184;          /* 次要文字 */
-  --rule: #2c2620;              /* 結構性分隔線 */
-
-  /* --- 作品圖的框與光暈(不裁切、不套 filter,只在圖外圈) --- */
-  --frame: 0 0 0 1px rgba(201, 169, 97, 0.2), 0 18px 44px -18px rgba(0, 0, 0, 0.9);
-  --frame-lit: 0 0 0 1px rgba(201, 169, 97, 0.52), 0 28px 62px -20px rgba(0, 0, 0, 1);
+  /* --- 作品圖的邊(不裁切、不套 filter,只在圖外圈) ---
+     紙白底上不需要陰影撐起深色照片,只要極細的一道邊,
+     讓白底/銀底的照片(tung-cat)不會浮在頁面上找不到邊界。 */
+  --frame: 0 0 0 1px rgba(26, 23, 20, 0.09);
+  --frame-lit: 0 0 0 1px rgba(26, 23, 20, 0.16), 0 16px 34px -20px rgba(26, 23, 20, 0.4);
 
   /* --- 字體 --- */
   /* Cormorant 只含拉丁字元,中文自動 fallback 到 Noto Serif TC */
@@ -57,18 +53,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* 黑漆深度:漆面不是死平的黑,上下各有一道極淡的反光 */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(100% 70% at 50% 0%, rgba(201, 169, 97, 0.055), transparent 62%),
-    radial-gradient(80% 55% at 50% 100%, rgba(201, 169, 97, 0.028), transparent 60%);
-}
-
 img { max-width: 100%; height: auto; display: block; }
 
 a {
@@ -76,7 +60,7 @@ a {
   text-decoration: none;
   transition: color 0.35s var(--ease), opacity 0.35s var(--ease);
 }
-a:hover { color: var(--gold); }
+a:hover { color: var(--vermilion); }
 
 h1, h2, h3, h4 {
   font-family: var(--serif);
@@ -89,11 +73,11 @@ h1, h2, h3, h4 {
 p { margin: 0 0 1.4em; }
 p:last-child { margin-bottom: 0; }
 
-/* 金底黑字 8.4:1。用 --gold-dim 當底只有 3.5:1,不到 AA */
-::selection { background: var(--gold); color: var(--urushi); }
+/* 朱底紙白字 6.2:1 */
+::selection { background: var(--vermilion); color: var(--paper); }
 
 :focus-visible {
-  outline: 1px solid var(--gold);
+  outline: 1px solid var(--vermilion);
   outline-offset: 4px;
 }
 
@@ -121,7 +105,7 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: clamp(3rem, 8vw, 6rem);
 }
 
-/* 金線 */
+/* 朱線 —— 內頁唯一的彩色重點 */
 .page-head::after {
   content: '';
   position: absolute;
@@ -129,7 +113,7 @@ p:last-child { margin-bottom: 0; }
   bottom: -1.8rem;
   width: min(100%, 11rem);
   height: 1px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dim) 60%, transparent);
+  background: linear-gradient(90deg, var(--vermilion), transparent);
 }
 
 /* 展開動作只在有 JS 時才需要初始收合,否則金線要直接是完整的。
@@ -170,7 +154,7 @@ p:last-child { margin-bottom: 0; }
   border: 0;
   height: 1px;
   margin: 0;
-  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  background: var(--rule);
 }
 
 /* ---------- 頁首 ---------- */
@@ -223,7 +207,7 @@ p:last-child { margin-bottom: 0; }
 
 .nav__link:hover,
 .nav__link[aria-current="page"] {
-  color: var(--gold);
+  color: var(--vermilion);
 }
 
 .lang {
@@ -272,7 +256,7 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
 }
 
-/* 原始比例,不裁切。金框與光暈都在圖外圈,不動到畫面本身 */
+/* 原始比例,不裁切。邊框在圖外圈,不動到畫面本身 */
 .hero__img {
   width: 100%;
   height: auto;
@@ -306,14 +290,14 @@ p:last-child { margin-bottom: 0; }
   font-weight: 300;
 }
 
-/* 金線:品牌名底下 */
+/* 朱線:品牌名底下 —— 首頁唯一的彩色重點 */
 .hero__statement h1::after {
   content: '';
   display: block;
   width: 7rem;
   height: 1px;
   margin-top: 1.5rem;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dim) 60%, transparent);
+  background: linear-gradient(90deg, var(--vermilion), transparent);
 }
 
 .js .hero__statement h1::after {
@@ -358,13 +342,13 @@ p:last-child { margin-bottom: 0; }
 }
 
 /* hover 不做放大推近 —— 那需要 overflow:hidden + scale,會裁掉照片邊緣。
-   改用輕微上浮 + 金框變亮,照片完整度不受影響 */
+   改用輕微上浮 + 邊變深,照片完整度不受影響 */
 .work-card:hover .work-card__img {
   box-shadow: var(--frame-lit);
   transform: translateY(-5px);
 }
 
-.work-card:hover .work-card__title { color: var(--gold); }
+.work-card:hover .work-card__title { color: var(--vermilion); }
 
 /* 窄螢幕改單欄直排:固定高度在窄容器下會擠壓比例 */
 @media (max-width: 900px) {
@@ -399,14 +383,13 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: clamp(2rem, 5vw, 3.2rem);
 }
 
-/* 金線取代原本的灰色底線 */
 .year-group__head::after {
   content: '';
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold-dim), var(--rule) 45%, transparent);
+  background: var(--rule);
 }
 
 .year-group__year {
@@ -612,7 +595,7 @@ p:last-child { margin-bottom: 0; }
   font-size: 0.72rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--ink-soft);
   font-family: var(--sans);
   padding-bottom: 0.8rem;
 }
@@ -623,7 +606,7 @@ p:last-child { margin-bottom: 0; }
   inset-inline: 0;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold-dim), var(--rule) 45%, transparent);
+  background: var(--rule);
 }
 
 .cv-list { list-style: none; margin: 1.1rem 0 0; padding: 0; font-size: 0.9rem; }
@@ -669,9 +652,9 @@ p:last-child { margin-bottom: 0; }
 
 /* ==========================================================
    研出(togidashi)
-   研出蒔繪的工序是把金粉埋進漆層裡,再一層層把表面的黑磨掉,
-   讓圖像從黑裡浮出來 —— 不是加上去,是磨出來的。
-   進場動畫用同一個邏輯:遮罩由下往上把黑磨開。
+   名字來自研出蒔繪 —— 圖像不是畫上去,是把表層一層層磨掉才浮出來的。
+   進場動畫用同一個邏輯:遮罩由下往上掃過,內容逐漸顯形。
+   (這個比喻在黑漆底上最貼切;白底上留下的是那道緩慢顯形的節奏。)
    ========================================================== */
 
 /* 初始的隱藏狀態只在有 JS 時成立。沒有 JS 就沒有人會加 is-revealed,
@@ -741,8 +724,11 @@ p:last-child { margin-bottom: 0; }
   place-items: center;
 }
 
+/* 站台是白底,但看原圖時仍然壓暗背景 —— 就像展場把燈調暗看作品。
+   因此 lightbox 內的顏色不能用 --ink-soft 之類的淺色主題變數,
+   那些在深色 backdrop 上會看不見,這裡一律寫死淺色值。 */
 .lightbox::backdrop {
-  background: rgba(8, 6, 5, 0.94);
+  background: rgba(20, 16, 13, 0.95);
 }
 
 .lightbox__img {
@@ -751,7 +737,7 @@ p:last-child { margin-bottom: 0; }
   max-height: 86dvh;
   width: auto;
   height: auto;
-  box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.3), 0 40px 90px -30px #000;
+  box-shadow: 0 0 0 1px rgba(233, 227, 215, 0.14), 0 40px 90px -30px #000;
 }
 
 .lightbox__close {
@@ -760,7 +746,7 @@ p:last-child { margin-bottom: 0; }
   right: clamp(0.8rem, 2.5vw, 1.6rem);
   background: none;
   border: 0;
-  color: var(--ink-soft);
+  color: #b8b1a6; /* 8.9:1 on backdrop */
   font-family: var(--sans);
   font-size: 0.72rem;
   letter-spacing: 0.24em;
@@ -769,7 +755,7 @@ p:last-child { margin-bottom: 0; }
   padding: 0.6rem 0.4rem;
 }
 
-.lightbox__close:hover { color: var(--gold); }
+.lightbox__close:hover { color: #f7f5f1; }
 
 @keyframes lightbox-in {
   from { opacity: 0; }
@@ -786,8 +772,8 @@ html:has(.lightbox[open]) { overflow: hidden; }
   position: absolute;
   left: -9999px;
   top: 0;
-  background: var(--gold);
-  color: var(--urushi);
+  background: var(--ink);
+  color: var(--paper);
   padding: 0.8rem 1.2rem;
   z-index: 10;
   font-size: 0.8rem;
