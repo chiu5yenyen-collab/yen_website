@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import { getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
@@ -14,9 +16,13 @@ interface Props {
   description?: string;
   /** 不含語言前綴的路徑,例如 /works */
   path?: string;
+  /** 分享預覽圖。不給的話用精選作品的封面 */
+  ogImage?: ImageMetadata;
+  /** 不該被索引的頁(例如 404),略過 canonical 與 hreflang */
+  noindex?: boolean;
 }
 
-const { lang, title, description, path = '/' } = Astro.props;
+const { lang, title, description, path = '/', ogImage, noindex = false } = Astro.props;
 const t = useTranslations(lang);
 
 const siteName = site.name[lang];
@@ -25,6 +31,27 @@ const desc = description ?? site.description[lang];
 const canonical = new URL(localizePath(lang, path), Astro.site);
 const zhHref = new URL(localizePath('zh', path), Astro.site);
 const enHref = new URL(localizePath('en', path), Astro.site);
+
+/* 分享預覽圖。沒有 og:image 的話,連結貼到 LINE / Facebook / Threads 不會有預覽 —
+   對作品集網站等於少掉最重要的一眼。用 jpeg 而非 webp,舊的爬蟲相容性較好。 */
+let ogSource: ImageMetadata | undefined = ogImage;
+if (!ogSource) {
+  const works = await getCollection('works');
+  ogSource = (works.find((w) => w.data.featured) ?? works[0])?.data.cover;
+}
+/* 維持原始比例輸出,寬高照實宣告。
+   注意:Astro 內建的 sharp 服務不支援 contain + background 留白
+   (給了 fit/background 也只會縮到框內,產出尺寸和宣告的 1200×630 對不上),
+   所以直式作品在 1.91:1 的社群卡片上仍會被平台自己裁切。 */
+const OG_MAX_WIDTH = 1200;
+const og = ogSource
+  ? await getImage({ src: ogSource, width: OG_MAX_WIDTH, format: 'jpeg', quality: 82 })
+  : null;
+const ogUrl = og ? new URL(og.src, Astro.site).href : null;
+/* 宣告尺寸必須等於實際輸出。Astro 不會把圖放大,所以來源比 1200 窄時
+   輸出就是來源原寬(例如 tung-cat 只有 1108px)。 */
+const ogWidth = ogSource ? Math.min(OG_MAX_WIDTH, ogSource.width) : null;
+const ogHeight = ogSource && ogWidth ? Math.round((ogSource.height / ogSource.width) * ogWidth) : null;
 ---
 
 <!doctype html>
@@ -34,18 +61,38 @@ const enHref = new URL(localizePath('en', path), Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={desc} />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="zh-Hant" href={zhHref} />
-    <link rel="alternate" hreflang="en" href={enHref} />
-    <link rel="alternate" hreflang="x-default" href={zhHref} />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex" />
+      ) : (
+        <>
+          <link rel="canonical" href={canonical} />
+          <link rel="alternate" hreflang="zh-Hant" href={zhHref} />
+          <link rel="alternate" hreflang="en" href={enHref} />
+          <link rel="alternate" hreflang="x-default" href={zhHref} />
+        </>
+      )
+    }
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#14100d" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={lang === 'zh' ? 'zh_TW' : 'en_US'} />
+    {
+      ogUrl && ogWidth && ogHeight && (
+        <>
+          <meta property="og:image" content={ogUrl} />
+          <meta property="og:image:width" content={String(ogWidth)} />
+          <meta property="og:image:height" content={String(ogHeight)} />
+          <meta property="og:image:alt" content={pageTitle} />
+          <meta name="twitter:image" content={ogUrl} />
+        </>
+      )
+    }
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+
+/* Netlify 對任何找不到的路徑都送這一頁,中英文都會落在這裡,
+   所以兩種語言都要寫出來。 */
+const lang = 'zh' as const;
+---
+
+<Base lang={lang} title="找不到頁面" path="/404" noindex>
+  <div class="page wrap wrap--narrow">
+    <div class="page-head togidashi">
+      <h1 class="page-head__title">找不到這個頁面</h1>
+      <p class="page-head__sub">Page not found</p>
+    </div>
+
+    <div class="notfound togidashi togidashi-2">
+      <p>網址可能打錯了,或這個頁面已經移走。</p>
+      <p lang="en">The address may be mistyped, or this page has moved.</p>
+
+      <ul class="notfound__links">
+        <li><a href="/works">作品 / Works</a></li>
+        <li><a href="/">首頁 / Home</a></li>
+      </ul>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .notfound {
+    max-width: var(--measure);
+  }
+
+  .notfound p[lang='en'] {
+    color: var(--ink-soft);
+  }
+
+  .notfound__links {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .notfound__links li {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .notfound__links a {
+    display: block;
+    padding-block: 1.15rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .notfound__links a:hover {
+    color: var(--gold);
+  }
+</style>

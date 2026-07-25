@@ -30,6 +30,7 @@ const seriesTitle = seriesId ? seriesTitles[seriesId]?.[lang] : undefined;
   title={work.data.title[lang]}
   description={work.data.note ? work.data.note[lang] : undefined}
   path={`/works/${work.id}`}
+  ogImage={work.data.cover}
 >
   <WorkDetailView work={work} prev={prev} next={next} seriesTitle={seriesTitle} lang={lang} />
 </Base>
